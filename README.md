@@ -19,4 +19,4 @@ Example Entries:
 > cluster.2 = tcp://1.2.3.5:7001/
 > cluster.3 = tcp://1.2.3.6:7001/
 
-<img src="sample.png" />
+<img src="voldemort-status-monitor/blob/master/sample.png" />
