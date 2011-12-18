@@ -23,4 +23,4 @@ The program is takes two command line arguments:
 > cluster.3 = tcp://1.2.3.6:7001/
 
 
-![Sample output] (sample.png "Sample output")
+![Sample output] (voldemort-status-monitor/raw/master/sample.png "Sample output")
