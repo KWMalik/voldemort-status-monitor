@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
@@ -113,14 +114,44 @@ public class VoldemortStatusPage {
 		private void writeStatusForCluster(HttpServletResponse res, String clusterName, String bootstrapUrl) throws IOException {
 
 			res.getWriter().println("<h2>Voldemort Cluster '" + clusterName +"' Status </h2>");
-			res.getWriter().println("<h4>(" + bootstrapUrl + ")</h4>");
+			res.getWriter().println("<h4>(");
 
 			try {
-				AdminClientConfig a = new AdminClientConfig();
-				AdminClient c = new AdminClient(bootstrapUrl, a);
-				Cluster cluster = c.getAdminClientCluster();
-				for (Node n : cluster.getNodes()) {
-					res.getWriter().println("<div><span>" + n.getHost() + ":" + n.getSocketPort() + " : " + "</span>" + getNodeStatusAsHtml(c, n) + "</div>");
+				String[] bootStrapUrls = bootstrapUrl.split(",");
+				
+				AdminClient reachableClient = null;
+				for (String b : bootStrapUrls) {
+					if (StringUtils.isNotBlank(b)) {
+						try {
+							AdminClient c = new AdminClient(b, new AdminClientConfig());
+							res.getWriter().print(inGreen(b) + ",");
+							if (reachableClient == null) {
+								reachableClient = c;
+							}
+						} catch (Exception e) {
+							logger.error("Could not open admin client using: " + b, e);
+							res.getWriter().print(inRed(b) + ",");
+						}
+					}
+				}
+				res.getWriter().println(")</h4>");
+				res.getWriter().println();
+				
+				for (String b : bootStrapUrls) {
+					if (StringUtils.isNotBlank(b)) {
+						try {
+							if (reachableClient != null) {
+								Cluster cluster = reachableClient.getAdminClientCluster();
+								for (Node n : cluster.getNodes()) {
+									res.getWriter().println("<div><span>" + n.getHost() + ":" + n.getSocketPort() + " : " + "</span>" + getNodeStatusAsHtml(reachableClient, n) + "</div>");
+								}
+								break;
+							}
+						} catch (Exception e) {
+							logger.error("Could not open admin client using: " + b, e);
+							res.getWriter().println("<div><span>" + b + " : " + "</span>" + inRed("NOT REACHABLE") + "</div>");
+						}
+					}
 				}
 			} catch (Exception e) {
 				logger.error(e);
