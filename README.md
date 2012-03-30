@@ -14,13 +14,10 @@ The program is takes two command line arguments:
 * HTTP Port number.
 * A Java properties file that lists bootstrap URLs of Voldemort Cluster(s) that are to be monitored.
 
-> Example Entries:
->
-> cluster.1 = tcp://1.2.3.4:7001/
->
-> cluster.2 = tcp://1.2.3.5:7001/
->
-> cluster.3 = tcp://1.2.3.6:7001/
+> Example Entries, specify IP/Host name of all the members of a cluster
+> 
+> a.cluster=tcp://a.member-1:7001,tcp://a.member2:7001
+> b.cluster=tcp://b.member-1:7001,tcp://b.member2:7001
 
 
 ![Sample output] (voldemort-status-monitor/raw/master/sample.png "Sample output")
